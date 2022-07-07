@@ -120,7 +120,7 @@ namespace ConsoleApp5
         }
     }
 
-    class MyClass2:MyClass1
+    class MyClass2 : MyClass1
     {
         public int MyProperty2 { get; set; } = 2;
         public int MyProperty3 { get; set; } = 3;
@@ -152,16 +152,96 @@ namespace ConsoleApp5
         {
             throw new NotImplementedException();
         }
-              
+
         public void Show()
         {
             throw new NotImplementedException();
         }
     }
+
+
+
+    interface IAction
+    {
+        void Move();
+    }
+
+    public abstract class ActionBase : IAction
+    {
+        public abstract void Move();
+    }
+    class BaseAction:ActionBase
+    {
+        public override void Move() => Console.WriteLine("Move in BaseAction");
+    }
+    class HeroAction : BaseAction {
+        public override void Move() => Console.WriteLine("Move in BaseAction");
+    }
+
+    class Person
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public Person(string name, int age)
+        {
+            Name = name;
+            Age = age;
+        }
+    }
+
+    interface IMessenger<in T, out K>
+    {
+        void SendMessage(T message);
+        K WriteMessage(string text);
+    }
+
+    class Message
+    {
+        public string Text { get; set; }
+        public Message(string text) => Text = text;
+    }
+    class EmailMessage : Message
+    {
+        public EmailMessage(string text) : base(text) { }
+    }
+
+    class SimpleMessenger : IMessenger<Message, EmailMessage>
+    {
+        public void SendMessage(Message message)
+        {
+            Console.WriteLine($"Отправляется сообщение: {message.Text}");
+        }
+        public EmailMessage WriteMessage(string text)
+        {
+            return new EmailMessage($"Email: {text}");
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
+            IMessenger<EmailMessage, Message> messenger = new SimpleMessenger();
+            Message message = messenger.WriteMessage("Hello World");
+            Console.WriteLine(message.Text);
+            messenger.SendMessage(new EmailMessage("Test"));
+
+            IMessenger<EmailMessage, EmailMessage> outlook = new SimpleMessenger();
+            EmailMessage emailMessage = outlook.WriteMessage("Message from Outlook");
+            outlook.SendMessage(emailMessage);
+
+            IMessenger<Message, Message> telegram = new SimpleMessenger();
+            Message simpleMessage = telegram.WriteMessage("Message from Telegram");
+            telegram.SendMessage(simpleMessage);
+
+            var tom = new Person("Tom", 23);
+            var bob = tom;
+            bob.Name = "Bob";
+            Console.WriteLine(tom.Name); // Bob
+
+            IAction action = new HeroAction();
+            action.Move();  // Move in BaseAction
+
             Car tesla = new Car();
             tesla.Move();   // Driving
 
@@ -170,10 +250,10 @@ namespace ConsoleApp5
 
             Console.WriteLine(base1.print());
             Console.WriteLine(child1.print());
-            
+
             MyClass1 base2 = new MyClass2();
             base2.MyProperty1 = 2;
-            
+
             Console.WriteLine(base2.print());
             Console.ReadKey();
         }
